@@ -1334,9 +1334,30 @@ window.confirmarDeleteConta = (id) => {
   render();
 };
 
-window.deletarLancamento = (id) => deletarLancamento(id);
-window.deletarConta = (id) => deletarConta(id);
-
+window.deletarLancamento = async (id) => {
+  state.syncing = true; render();
+  try {
+    await api('DELETE', `/lancamentos/${id}`);
+    showToast('Removido.');
+    state.modal = null;
+    await loadCurrentTab();
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+  state.syncing = false; render();
+};
+window.deletarConta = async (id) => {
+  state.syncing = true; render();
+  try {
+    await api('DELETE', `/contas/${id}`);
+    showToast('Conta removida.');
+    state.modal = null;
+    await loadContas();
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+  state.syncing = false; render();
+};
 window.showApiEdit = () => {
   state.apiConfigOpen = !state.apiConfigOpen;
   render();

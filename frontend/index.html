@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#030712" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Finanças" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Finanças do Casal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #030712;
+      --surface: #0d1117;
+      --surface2: #161b22;
+      --border: #21262d;
+      --text: #e6edf3;
+      --text2: #7d8590;
+      --text3: #484f58;
+      --green: #3fb950;
+      --green-bg: #0d2818;
+      --red: #f85149;
+      --red-bg: #2d0f0e;
+      --yellow: #d29922;
+      --yellow-bg: #272115;
+      --blue: #58a6ff;
+      --blue-bg: #0c1e3a;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(3,7,18,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-logo { font-size: 20px; }
+    .header-title { font-weight: 700; font-size: 16px; color: var(--text); }
+    .header-user {
+      font-size: 12px; color: var(--text2);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .btn-change-user {
+      font-size: 11px; color: var(--text3);
+      background: none; border: none; cursor: pointer;
+      text-decoration: underline;
+    }
+    .sync-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green); animation: pulse 2s infinite;
+    }
+    .sync-dot.syncing { background: var(--yellow); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex; background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none;
+      position: sticky; top: 57px; z-index: 40;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex: 1; min-width: 70px;
+      padding: 11px 4px; border: none; background: none;
+      color: var(--text3); cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+    /* ── MONTH BAR ── */
+    .month-bar {
+      display: flex; gap: 6px; padding: 10px 16px;
+      overflow-x: auto; scrollbar-width: none;
+      background: var(--bg);
+    }
+    .month-bar::-webkit-scrollbar { display: none; }
+    .month-chip {
+      padding: 5px 14px; border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface); color: var(--text2);
+      font-size: 12px; font-weight: 500; cursor: pointer;
+      white-space: nowrap; transition: all 0.2s;
+    }
+    .month-chip.active {
+      background: var(--blue); border-color: var(--blue); color: #fff;
+    }
+
+    /* ── CONTENT ── */
+    .content { padding: 12px 14px 90px; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--text3);
+      margin-bottom: 14px;
+    }
+
+    /* ── KPI GRID ── */
+    .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+    .kpi-label { font-size: 11px; color: var(--text3); font-weight: 500; margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; font-family: 'DM Mono', monospace; line-height: 1; }
+    .kpi-value.green { color: var(--green); }
+    .kpi-value.red { color: var(--red); }
+    .kpi-value.blue { color: var(--blue); }
+    .kpi-value.yellow { color: var(--yellow); }
+    .kpi-full { grid-column: span 2; }
+
+    /* ── SALDO CARD ── */
+    .saldo-card {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+    .saldo-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+    .saldo-value {
+      font-size: 36px; font-weight: 700;
+      font-family: 'DM Mono', monospace;
+      line-height: 1.1; margin-bottom: 16px;
+    }
+    .saldo-row { display: flex; gap: 12px; }
+    .saldo-mini { flex: 1; }
+    .saldo-mini-label { font-size: 10px; color: var(--text3); margin-bottom: 2px; }
+    .saldo-mini-value { font-size: 14px; font-weight: 600; font-family: 'DM Mono', monospace; }
+
+    /* ── ALERTA ── */
+    .alerta-card {
+      background: var(--yellow-bg);
+      border: 1px solid var(--yellow);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .alerta-icon { font-size: 22px; flex-shrink: 0; }
+    .alerta-text { font-size: 13px; color: var(--yellow); line-height: 1.4; }
+    .alerta-text strong { font-weight: 700; }
+
+    /* ── LISTA DE CONTAS ── */
+    .conta-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .conta-row:last-child { border-bottom: none; }
+    .conta-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+      background: var(--surface2);
+    }
+    .conta-info { flex: 1; min-width: 0; }
+    .conta-nome { font-size: 14px; font-weight: 500; color: var(--text); }
+    .conta-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .conta-valor { font-size: 15px; font-weight: 700; font-family: 'DM Mono', monospace; flex-shrink: 0; }
+    .conta-status {
+      font-size: 10px; font-weight: 600; padding: 3px 8px;
+      border-radius: 20px; flex-shrink: 0; cursor: pointer;
+      border: none; transition: all 0.2s;
+    }
+    .conta-status.paga { background: var(--green-bg); color: var(--green); }
+    .conta-status.pendente { background: var(--surface2); color: var(--text2); }
+    .conta-status.vencendo { background: var(--yellow-bg); color: var(--yellow); }
+    .conta-status.atrasada { background: var(--red-bg); color: var(--red); }
+
+    /* ── LANÇAMENTO ROW ── */
+    .tx-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .tx-row:last-child { border-bottom: none; }
+    .tx-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .tx-icon.entrada { background: var(--green-bg); }
+    .tx-icon.saida { background: var(--red-bg); }
+    .tx-info { flex: 1; min-width: 0; }
+    .tx-desc { font-size: 14px; font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tx-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .tx-right { text-align: right; flex-shrink: 0; }
+    .tx-valor { font-size: 15px; font-weight: 700; font-family: 'DM Mono', monospace; }
+    .tx-valor.entrada { color: var(--green); }
+    .tx-valor.saida { color: var(--red); }
+    .btn-del {
+      background: none; border: none;
+      color: var(--text3); cursor: pointer; font-size: 14px;
+      padding: 4px; border-radius: 6px;
+    }
+    .btn-del:hover { color: var(--red); background: var(--red-bg); }
+
+    /* ── CATEGORIA BARS ── */
+    .cat-row { margin-bottom: 12px; }
+    .cat-row-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .cat-nome { font-size: 13px; color: var(--text); }
+    .cat-valor { font-size: 13px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--text); }
+    .cat-pct { font-size: 11px; color: var(--text3); }
+    .bar-track { height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+
+    /* ── FAB ── */
+    .fab {
+      position: fixed; bottom: 24px; right: 20px;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--blue);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; color: #fff;
+      box-shadow: 0 4px 20px rgba(88,166,255,0.4);
+      z-index: 90; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .fab:active { transform: scale(0.92); }
+
+    /* ── MODAL ── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex; align-items: flex-end;
+      z-index: 100; padding: 0;
+    }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      padding: 20px 20px 36px;
+      width: 100%; max-height: 92vh;
+      overflow-y: auto;
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-title { font-size: 17px; font-weight: 700; color: var(--text); }
+    .btn-close {
+      background: var(--surface2); border: none; cursor: pointer;
+      width: 30px; height: 30px; border-radius: 50%;
+      color: var(--text2); font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── FORM ── */
+    .type-toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+    .type-btn {
+      flex: 1; padding: 11px;
+      border-radius: var(--radius-sm); border: 1px solid var(--border);
+      background: var(--surface2); cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 600; transition: all 0.2s;
+      color: var(--text2);
+    }
+    .type-btn.active-entrada { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+    .type-btn.active-saida { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+
+    .form-label { font-size: 12px; color: var(--text3); font-weight: 500; margin-bottom: 6px; display: block; }
+    .form-input {
+      width: 100%; background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px; color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; outline: none;
+      margin-bottom: 14px; transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    .form-input:focus { border-color: var(--blue); }
+    .form-input::placeholder { color: var(--text3); }
+
+    .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+    .cat-chip {
+      padding: 10px 6px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      cursor: pointer; text-align: center;
+      font-size: 11px; font-weight: 500;
+      color: var(--text2); transition: all 0.2s;
+    }
+    .cat-chip .emoji { font-size: 18px; display: block; margin-bottom: 3px; }
+    .cat-chip.selected { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); }
+
+    .btn-primary {
+      width: 100%; padding: 14px;
+      background: var(--blue); border: none; border-radius: var(--radius-sm);
+      color: #fff; font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s; margin-top: 4px;
+    }
+    .btn-primary:active { opacity: 0.8; }
+    .btn-secondary {
+      width: 100%; padding: 12px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px;
+    }
+
+    .error-msg { color: var(--red); font-size: 12px; margin: -10px 0 10px; }
+
+    /* ── EMPTY STATE ── */
+    .empty { text-align: center; padding: 40px 20px; color: var(--text3); }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-text { font-size: 14px; line-height: 1.5; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+      padding: 10px 20px; border-radius: 20px;
+      font-size: 13px; font-weight: 500; color: #fff;
+      z-index: 200; white-space: nowrap;
+      animation: fadeInOut 3s ease forwards;
+    }
+    .toast.success { background: #1a3a24; border: 1px solid var(--green); color: var(--green); }
+    .toast.error { background: var(--red-bg); border: 1px solid var(--red); color: var(--red); }
+    @keyframes fadeInOut { 0%{opacity:0;transform:translateX(-50%) translateY(10px)} 15%,85%{opacity:1;transform:translateX(-50%) translateY(0)} 100%{opacity:0} }
+
+    /* ── USER SELECT ── */
+    .user-screen {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 24px;
+      text-align: center;
+    }
+    .user-logo { font-size: 48px; margin-bottom: 16px; }
+    .user-title { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+    .user-sub { font-size: 14px; color: var(--text2); margin-bottom: 36px; }
+    .user-grid { display: flex; gap: 14px; }
+    .user-card {
+      flex: 1; padding: 24px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px; cursor: pointer;
+      transition: all 0.2s; display: flex;
+      flex-direction: column; align-items: center; gap: 10px;
+    }
+    .user-card:active { transform: scale(0.97); border-color: var(--blue); }
+    .user-avatar { font-size: 40px; }
+    .user-name { font-size: 16px; font-weight: 600; color: var(--text); }
+
+    /* ── CONFIG SCREEN ── */
+    .config-section { margin-bottom: 20px; }
+    .config-section-title {
+      font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--text3);
+      padding: 0 0 10px; margin-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .config-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .config-row:last-child { border-bottom: none; }
+    .config-label { font-size: 14px; color: var(--text); }
+    .config-meta { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .btn-config {
+      padding: 6px 14px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--text2); font-size: 12px; cursor: pointer;
+    }
+    .api-input-wrap { display: flex; gap: 8px; margin-top: 10px; }
+    .api-input-wrap .form-input { margin-bottom: 0; flex: 1; font-size: 13px; }
+
+    /* ── LOADING ── */
+    .loading { text-align: center; padding: 40px; color: var(--text3); font-size: 14px; }
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── OFFLINE BADGE ── */
+    .offline-badge {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: var(--yellow-bg); border-bottom: 1px solid var(--yellow);
+      text-align: center; padding: 6px; font-size: 12px; color: var(--yellow);
+      z-index: 200;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// CONFIGURAÇÃO — altere a URL da API após o deploy no Railway
+// ─────────────────────────────────────────────────────────────
+const CONFIG = {
+  API_URL: localStorage.getItem('api_url') || '',
+  USER_KEY: 'financas_usuario',
+};
+
+const CATEGORIAS = {
+  entrada: [
+    { id: 'salario', label: 'Salário', icon: '💼' },
+    { id: 'freelance', label: 'Freelance', icon: '💻' },
+    { id: 'comissao', label: 'Comissão', icon: '🤝' },
+    { id: 'aluguel', label: 'Aluguel', icon: '🏠' },
+    { id: 'investimento', label: 'Investimento', icon: '📈' },
+    { id: 'outros', label: 'Outros', icon: '✨' },
+  ],
+  saida: [
+    { id: 'moradia', label: 'Moradia', icon: '🏠' },
+    { id: 'alimentacao', label: 'Alimentação', icon: '🍽️' },
+    { id: 'transporte', label: 'Transporte', icon: '🚗' },
+    { id: 'saude', label: 'Saúde', icon: '❤️' },
+    { id: 'lazer', label: 'Lazer', icon: '🎉' },
+    { id: 'educacao', label: 'Educação', icon: '📚' },
+    { id: 'vestuario', label: 'Vestuário', icon: '👗' },
+    { id: 'cartao', label: 'Cartão', icon: '💳' },
+    { id: 'assinaturas', label: 'Assinaturas', icon: '📱' },
+    { id: 'mercado', label: 'Mercado', icon: '🛒' },
+    { id: 'farmacia', label: 'Farmácia', icon: '💊' },
+    { id: 'outros', label: 'Outros', icon: '📦' },
+  ],
+};
+
+const CAT_CONTA = [
+  { id: 'moradia', label: 'Moradia', icon: '🏠' },
+  { id: 'energia', label: 'Energia', icon: '⚡' },
+  { id: 'agua', label: 'Água', icon: '💧' },
+  { id: 'internet', label: 'Internet', icon: '📡' },
+  { id: 'cartao', label: 'Cartão', icon: '💳' },
+  { id: 'financiamento', label: 'Financiamento', icon: '🏦' },
+  { id: 'assinatura', label: 'Assinatura', icon: '📱' },
+  { id: 'saude', label: 'Saúde', icon: '❤️' },
+  { id: 'outros', label: 'Outros', icon: '📦' },
+];
+
+const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const CAT_COLORS = ['#58a6ff','#3fb950','#d29922','#f85149','#a371f7','#39d353','#e3b341','#ff7b72'];
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+let state = {
+  user: localStorage.getItem(CONFIG.USER_KEY) || null,
+  tab: 'dashboard',
+  mes: getCurrentMes(),
+  loading: false,
+  syncing: false,
+  online: navigator.onLine,
+  dashboard: null,
+  lancamentos: [],
+  contas: [],
+  contasMes: [],
+  modal: null, // 'lancamento' | 'conta' | 'conta-edit' | 'confirmar-pagar' | 'delete-confirm'
+  modalData: {},
+  toast: null,
+  apiConfigOpen: false,
+};
+
+function getCurrentMes() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function getLast6Meses() {
+  const result = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    result.push({ key, label: MESES[d.getMonth()] });
+  }
+  return result;
+}
+
+// ─────────────────────────────────────────────────────────────
+// API
+// ─────────────────────────────────────────────────────────────
+async function api(method, path, body) {
+  const url = CONFIG.API_URL;
+  if (!url) throw new Error('API não configurada. Acesse Configurações.');
+
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (body) opts.body = JSON.stringify(body);
+
+  const res = await fetch(url + path, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Erro ${res.status}`);
+  }
+  return res.json();
+}
+
+// ─────────────────────────────────────────────────────────────
+// DATA LOADING
+// ─────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  state.loading = true; render();
+  try {
+    const [dashboard, contasMes] = await Promise.all([
+      api('GET', `/dashboard?mes=${state.mes}`),
+      api('GET', `/contas-mes?mes=${state.mes}`),
+    ]);
+    state.dashboard = dashboard;
+    state.contasMes = contasMes;
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+  state.loading = false; render();
+}
+
+async function loadLancamentos() {
+  state.loading = true; render();
+  try {
+    state.lancamentos = await api('GET', `/lancamentos?mes=${state.mes}`);
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+  state.loading = false; render();
+}
+
+async function loadContas() {
+  state.loading = true; render();
+  try {
+    [state.contas, state.contasMes] = await Promise.all([
+      api('GET', '/contas'),
+      api('GET', `/contas-mes?mes=${state.mes}`),
+    ]);
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+  state.loading = false; render();
+}
+
+async function loadCurrentTab() {
+  if (!CONFIG.API_URL) return;
+  if (state.tab === 'dashboard') await loadDashboard();
+  else if (state.tab === 'lancamentos') await loadLancamentos();
+  else if (state.tab === 'contas') await loadContas();
+}
+
+// ─────────────────────────────────────────────────────────────
+// ACTIONS
+// ─────────────────────────────────────────────────────────────
+async function salvarLancamento(dados) {
+  state.syncing = true; render();
+  try {
+    await api('POST', '/lancamentos', { ...dados, usuario: state.user });
+    showToast('Lançamento salvo! ✓');
+    state.modal = null;
+    await loadCurrentTab();
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+  state.syncing = false; render();
+}
+
+async function deletarLancamento(id) {
+  state.syncing = true; render();
+  try {
+    await api('DELETE', `/lancamentos/${id}`);
+    showToast('Removido.');
+    state.modal = null;
+    await loadCurrentTab();
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+  state.syncing = false; render();
+}
+
+async function salvarConta(dados) {
+  state.syncing = true; render();
+  try {
+    if (dados.id) {
+      await api('PUT', `/contas/${dados.id}`, dados);
+    } else {
+      await api('POST', '/contas', dados);
+    }
+    showToast('Conta salva! ✓');
+    state.modal = null;
+    await loadContas();
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+  state.syncing = false; render();
+}
+
+async function pagarConta(cmId) {
+  state.syncing = true; render();
+  try {
+    await api('PATCH', `/contas-mes/${cmId}/pagar`, { pago_por: state.user });
+    showToast('Marcada como paga! ✓');
+    state.modal = null;
+    await loadCurrentTab();
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+  state.syncing = false; render();
+}
+
+async function desmarcarConta(cmId) {
+  state.syncing = true; render();
+  try {
+    await api('PATCH', `/contas-mes/${cmId}/desmarcar`, {});
+    showToast('Desmarcada.');
+    await loadCurrentTab();
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+  state.syncing = false; render();
+}
+
+async function atualizarValorConta(cmId, valor) {
+  try {
+    await api('PATCH', `/contas-mes/${cmId}/valor`, { valor });
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+}
+
+async function deletarConta(id) {
+  state.syncing = true; render();
+  try {
+    await api('DELETE', `/contas/${id}`);
+    showToast('Conta removida.');
+    state.modal = null;
+    await loadContas();
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+  state.syncing = false; render();
+}
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────
+function fmt(v) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  return new Date(d + 'T12:00:00').toLocaleDateString('pt-BR');
+}
+
+function showToast(msg, type = 'success') {
+  state.toast = { msg, type };
+  render();
+  setTimeout(() => { state.toast = null; render(); }, 3100);
+}
+
+function getCatInfo(tipo, catId) {
+  const list = tipo === 'entrada' ? CATEGORIAS.entrada : CATEGORIAS.saida;
+  return list.find(c => c.id === catId) || { label: catId, icon: '•' };
+}
+
+function getContaCatInfo(catId) {
+  return CAT_CONTA.find(c => c.id === catId) || { label: catId, icon: '📦' };
+}
+
+function getDiaStatus(diaVenc, pago) {
+  if (pago) return 'paga';
+  const hoje = new Date().getDate();
+  const diff = diaVenc - hoje;
+  if (diff < 0) return 'atrasada';
+  if (diff <= 3) return 'vencendo';
+  return 'pendente';
+}
+
+function getDiaStatusLabel(status) {
+  const map = { paga: '✓ Paga', pendente: 'Pagar', vencendo: '⚠ Vence em breve', atrasada: '⚠ Atrasada' };
+  return map[status] || 'Pagar';
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  if (!app) return;
+
+  if (!state.user) {
+    app.innerHTML = renderUserSelect();
+    return;
+  }
+
+  if (!CONFIG.API_URL) {
+    app.innerHTML = renderSetupAPI();
+    return;
+  }
+
+  app.innerHTML = `
+    ${!state.online ? '<div class="offline-badge">📡 Sem conexão — exibindo dados em cache</div>' : ''}
+    ${renderHeader()}
+    ${renderTabs()}
+    ${renderMonthBar()}
+    <div class="content">
+      ${state.loading ? '<div class="loading"><span class="spinner"></span>Carregando...</div>' : renderContent()}
+    </div>
+    <button class="fab" onclick="openModal('lancamento')">＋</button>
+    ${state.modal ? renderModal() : ''}
+    ${state.toast ? `<div class="toast ${state.toast.type}">${state.toast.msg}</div>` : ''}
+  `;
+
+  attachEvents();
+}
+
+function renderUserSelect() {
+  return `
+    <div class="user-screen">
+      <div class="user-logo">💰</div>
+      <h1 class="user-title">Finanças do Casal</h1>
+      <p class="user-sub">Quem está acessando?</p>
+      <div class="user-grid">
+        <div class="user-card" onclick="selectUser('Osvaldo')">
+          <div class="user-avatar">👨‍💼</div>
+          <div class="user-name">Osvaldo</div>
+        </div>
+        <div class="user-card" onclick="selectUser('Rebecca')">
+          <div class="user-avatar">👩‍💼</div>
+          <div class="user-name">Rebecca</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSetupAPI() {
+  return `
+    <div class="user-screen" style="text-align:left;align-items:flex-start;padding:28px 20px;">
+      <div style="font-size:40px;margin-bottom:16px;">🔧</div>
+      <h2 style="font-size:22px;font-weight:700;margin-bottom:8px;">Configurar API</h2>
+      <p style="font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.6;">
+        Cole abaixo a URL da sua API no Railway.<br/>
+        Exemplo: <code style="color:var(--blue);font-size:12px;">https://financas-casal.up.railway.app</code>
+      </p>
+      <label class="form-label">URL da API</label>
+      <div class="api-input-wrap">
+        <input class="form-input" id="api-url-input" type="url" placeholder="https://..." value="${CONFIG.API_URL}" />
+        <button class="btn-primary" style="width:auto;padding:12px 20px;" onclick="saveApiUrl()">Salvar</button>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:16px;">
+        Veja o README.md para instruções de deploy.
+      </p>
+    </div>
+  `;
+}
+
+function renderHeader() {
+  const avatar = state.user === 'Osvaldo' ? '👨‍💼' : '👩‍💼';
+  return `
+    <div class="header">
+      <div class="header-left">
+        <span class="header-logo">💰</span>
+        <span class="header-title">Finanças</span>
+        <div class="sync-dot ${state.syncing ? 'syncing' : ''}" title="${state.syncing ? 'Sincronizando...' : 'Sincronizado'}"></div>
+      </div>
+      <div class="header-user">
+        <span>${avatar} ${state.user}</span>
+        <button class="btn-change-user" onclick="changeUser()">Trocar</button>
+        <button class="btn-change-user" onclick="openTab('config')" title="Configurações">⚙</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderTabs() {
+  const tabs = [
+    { id: 'dashboard', label: '📊 Dashboard' },
+    { id: 'lancamentos', label: '📋 Lançamentos' },
+    { id: 'contas', label: '📅 Contas' },
+  ];
+  return `
+    <div class="tabs">
+      ${tabs.map(t => `<button class="tab-btn ${state.tab === t.id ? 'active' : ''}" onclick="openTab('${t.id}')">${t.label}</button>`).join('')}
+    </div>
+  `;
+}
+
+function renderMonthBar() {
+  if (state.tab === 'config') return '';
+  const meses = getLast6Meses();
+  return `
+    <div class="month-bar">
+      ${meses.map(m => `<button class="month-chip ${state.mes === m.key ? 'active' : ''}" onclick="changeMes('${m.key}')">${m.label}</button>`).join('')}
+    </div>
+  `;
+}
+
+function renderContent() {
+  if (state.tab === 'dashboard') return renderDashboard();
+  if (state.tab === 'lancamentos') return renderLancamentos();
+  if (state.tab === 'contas') return renderContas();
+  if (state.tab === 'config') return renderConfig();
+  return '';
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────
+function renderDashboard() {
+  const d = state.dashboard;
+  if (!d) return `<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Carregando dashboard...</div></div>`;
+
+  const saldoColor = d.saldoAtual >= 0 ? 'green' : 'red';
+  const projColor = d.saldoProjetado >= 0 ? 'blue' : 'red';
+
+  // Alerta de contas
+  const alertaHtml = d.contasAlerta && d.contasAlerta.length > 0 ? `
+    <div class="alerta-card">
+      <div class="alerta-icon">⚠️</div>
+      <div class="alerta-text">
+        <strong>${fmt(d.totalAlerta)}</strong> vencendo nos próximos 5 dias
+        (${d.contasAlerta.length} conta${d.contasAlerta.length > 1 ? 's' : ''})
+      </div>
+    </div>
+  ` : '';
+
+  // Saldo negativo projetado
+  const projNegHtml = d.saldoProjetado < 0 ? `
+    <div class="alerta-card" style="background:var(--red-bg);border-color:var(--red);">
+      <div class="alerta-icon">🚨</div>
+      <div class="alerta-text" style="color:var(--red);">
+        Saldo ficará <strong>negativo (${fmt(d.saldoProjetado)})</strong> após pagamentos pendentes
+      </div>
+    </div>
+  ` : '';
+
+  // Categorias
+  const totalSaidas = d.saidas || 1;
+  const catHtml = d.porCategoria && d.porCategoria.length > 0 ? d.porCategoria.map((c, i) => {
+    const pct = Math.round((c.total / totalSaidas) * 100);
+    const cat = getCatInfo('saida', c.categoria);
+    return `
+      <div class="cat-row">
+        <div class="cat-row-header">
+          <span class="cat-nome">${cat.icon} ${cat.label}</span>
+          <span><span class="cat-valor">${fmt(c.total)}</span> <span class="cat-pct">${pct}%</span></span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${pct}%;background:${CAT_COLORS[i % CAT_COLORS.length]}"></div>
+        </div>
+      </div>
+    `;
+  }).join('') : '<p style="color:var(--text3);font-size:13px;text-align:center;padding:12px 0">Nenhuma despesa ainda</p>';
+
+  // Últimos lançamentos
+  const txHtml = d.ultimosLancamentos && d.ultimosLancamentos.length > 0 ? d.ultimosLancamentos.map(t => renderTxRow(t)).join('') : '<p style="color:var(--text3);font-size:13px;text-align:center;padding:16px 0">Nenhum lançamento ainda</p>';
+
+  return `
+    ${alertaHtml}
+    ${projNegHtml}
+
+    <div class="saldo-card">
+      <div class="saldo-label">Saldo atual</div>
+      <div class="saldo-value ${saldoColor}">${fmt(d.saldoAtual)}</div>
+      <div class="saldo-row">
+        <div class="saldo-mini">
+          <div class="saldo-mini-label">Projetado (após contas)</div>
+          <div class="saldo-mini-value" style="color:var(--${projColor})">${fmt(d.saldoProjetado)}</div>
+        </div>
+        <div class="saldo-mini" style="text-align:right">
+          <div class="saldo-mini-label">Pendente a pagar</div>
+          <div class="saldo-mini-value" style="color:var(--yellow)">${fmt(d.totalContasPendentes)}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">⬆ Entradas</div>
+        <div class="kpi-value green">${fmt(d.entradas)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">⬇ Saídas</div>
+        <div class="kpi-value red">${fmt(d.saidas)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">✅ Contas pagas</div>
+        <div class="kpi-value">${fmt(d.totalContasPagas)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">⏳ A pagar</div>
+        <div class="kpi-value yellow">${fmt(d.totalContasPendentes)}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Gastos por categoria</div>
+      ${catHtml}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Últimos lançamentos</div>
+      ${txHtml}
+    </div>
+  `;
+}
+
+// ── LANÇAMENTOS ─────────────────────────────────────────────
+function renderLancamentos() {
+  const txs = state.lancamentos;
+
+  if (txs.length === 0) return `
+    <div class="empty">
+      <div class="empty-icon">📋</div>
+      <div class="empty-text">Nenhum lançamento em ${MESES[parseInt(state.mes.split('-')[1]) - 1]}.<br/>Toque em ＋ para adicionar.</div>
+    </div>
+  `;
+
+  const entradas = txs.filter(t => t.tipo === 'entrada').reduce((a, t) => a + t.valor, 0);
+  const saidas = txs.filter(t => t.tipo === 'saida').reduce((a, t) => a + t.valor, 0);
+
+  return `
+    <div class="kpi-grid" style="margin-bottom:12px">
+      <div class="kpi-card">
+        <div class="kpi-label">⬆ Entradas</div>
+        <div class="kpi-value green">${fmt(entradas)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">⬇ Saídas</div>
+        <div class="kpi-value red">${fmt(saidas)}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">${txs.length} lançamento${txs.length > 1 ? 's' : ''}</div>
+      ${txs.map(t => renderTxRow(t, true)).join('')}
+    </div>
+  `;
+}
+
+function renderTxRow(t, showDelete = false) {
+  const cat = getCatInfo(t.tipo, t.categoria);
+  const userColor = t.usuario === 'Osvaldo' ? '#58a6ff' : '#f78fba';
+  return `
+    <div class="tx-row">
+      <div class="tx-icon ${t.tipo}">${cat.icon}</div>
+      <div class="tx-info">
+        <div class="tx-desc">${t.descricao || cat.label}</div>
+        <div class="tx-meta">${cat.label} · <span style="color:${userColor}">${t.usuario}</span> · ${fmtDate(t.data)}</div>
+      </div>
+      <div class="tx-right">
+        <div class="tx-valor ${t.tipo}">${t.tipo === 'entrada' ? '+' : '-'}${fmt(t.valor)}</div>
+        ${showDelete ? `<button class="btn-del" onclick="confirmDelete(${t.id})">🗑</button>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// ── CONTAS ──────────────────────────────────────────────────
+function renderContas() {
+  const cm = state.contasMes;
+
+  const pagas = cm.filter(c => c.pago);
+  const pendentes = cm.filter(c => !c.pago);
+
+  const totalPago = pagas.reduce((a, c) => a + c.valor, 0);
+  const totalPendente = pendentes.reduce((a, c) => a + c.valor, 0);
+
+  const renderContaRow = (c) => {
+    const cat = getContaCatInfo(c.categoria);
+    const status = getDiaStatus(c.dia_vencimento, c.pago);
+    const statusLabel = getDiaStatusLabel(status);
+    const acao = c.pago
+      ? `<button class="conta-status paga" onclick="desmarcarConta(${c.id})">✓ Paga</button>`
+      : `<button class="conta-status ${status}" onclick="confirmarPagar(${c.id}, '${c.nome}', ${c.valor})">${statusLabel}</button>`;
+
+    const valorDisplay = c.tipo === 'variavel'
+      ? `<input type="number" value="${c.valor || 0}" step="0.01"
+           style="width:90px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;text-align:right;"
+           onchange="atualizarValorConta(${c.id}, this.value)" />`
+      : `<span class="conta-valor">${fmt(c.valor)}</span>`;
+
+    return `
+      <div class="conta-row">
+        <div class="conta-icon">${cat.icon}</div>
+        <div class="conta-info">
+          <div class="conta-nome">${c.nome}</div>
+          <div class="conta-meta">Dia ${c.dia_vencimento} · ${c.tipo === 'variavel' ? 'Variável' : 'Fixo'}${c.pago_por ? ` · pago por ${c.pago_por}` : ''}</div>
+        </div>
+        ${valorDisplay}
+        ${acao}
+      </div>
+    `;
+  };
+
+  return `
+    <div class="kpi-grid" style="margin-bottom:12px">
+      <div class="kpi-card">
+        <div class="kpi-label">✅ Pagas</div>
+        <div class="kpi-value green">${fmt(totalPago)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">⏳ Pendentes</div>
+        <div class="kpi-value yellow">${fmt(totalPendente)}</div>
+      </div>
+    </div>
+
+    ${pendentes.length > 0 ? `
+      <div class="card">
+        <div class="card-title">A pagar (${pendentes.length})</div>
+        ${pendentes.map(renderContaRow).join('')}
+      </div>
+    ` : ''}
+
+    ${pagas.length > 0 ? `
+      <div class="card">
+        <div class="card-title">Pagas (${pagas.length})</div>
+        ${pagas.map(renderContaRow).join('')}
+      </div>
+    ` : ''}
+
+    ${cm.length === 0 ? `
+      <div class="empty">
+        <div class="empty-icon">📅</div>
+        <div class="empty-text">Nenhuma conta cadastrada.<br/>Adicione suas contas fixas e variáveis.</div>
+      </div>
+    ` : ''}
+
+    <button class="btn-primary" style="margin-top:8px" onclick="openModal('conta')">+ Adicionar conta recorrente</button>
+  `;
+}
+
+// ── CONFIG ──────────────────────────────────────────────────
+function renderConfig() {
+  return `
+    <div class="card">
+      <div class="card-title">Conexão</div>
+      <div class="config-row">
+        <div>
+          <div class="config-label">URL da API (Railway)</div>
+          <div class="config-meta">${CONFIG.API_URL || 'Não configurada'}</div>
+        </div>
+        <button class="btn-config" onclick="showApiEdit()">Editar</button>
+      </div>
+      ${state.apiConfigOpen ? `
+        <div class="api-input-wrap" style="margin-top:10px">
+          <input class="form-input" id="api-url-input" type="url" placeholder="https://..." value="${CONFIG.API_URL}" />
+          <button class="btn-primary" style="width:auto;padding:12px 18px;" onclick="saveApiUrl()">Salvar</button>
+        </div>
+      ` : ''}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Usuário atual</div>
+      <div class="config-row">
+        <div>
+          <div class="config-label">${state.user === 'Osvaldo' ? '👨‍💼' : '👩‍💼'} ${state.user}</div>
+          <div class="config-meta">Logado neste dispositivo</div>
+        </div>
+        <button class="btn-config" onclick="changeUser()">Trocar</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Sobre</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6">
+        <p>Finanças do Casal v1.0</p>
+        <p style="margin-top:6px">App PWA — instale pela opção "Adicionar à tela inicial" do seu navegador.</p>
+        <p style="margin-top:6px;color:var(--text3)">Dados armazenados no seu servidor Railway.</p>
+      </div>
+    </div>
+  `;
+}
+
+// ── MODALS ──────────────────────────────────────────────────
+function renderModal() {
+  if (state.modal === 'lancamento') return renderModalLancamento();
+  if (state.modal === 'conta') return renderModalConta();
+  if (state.modal === 'confirmar-pagar') return renderModalConfirmarPagar();
+  if (state.modal === 'delete-confirm') return renderModalDeleteConfirm();
+  return '';
+}
+
+function renderModalLancamento() {
+  const d = state.modalData;
+  const tipo = d.tipo || 'saida';
+  const cats = tipo === 'entrada' ? CATEGORIAS.entrada : CATEGORIAS.saida;
+
+  return `
+    <div class="overlay" onclick="closeModalOutside(event)">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">Novo lançamento</span>
+          <button class="btn-close" onclick="closeModal()">✕</button>
+        </div>
+
+        <div class="type-toggle">
+          <button class="type-btn ${tipo === 'entrada' ? 'active-entrada' : ''}" onclick="setTipo('entrada')">⬆ Entrada</button>
+          <button class="type-btn ${tipo === 'saida' ? 'active-saida' : ''}" onclick="setTipo('saida')">⬇ Saída</button>
+        </div>
+
+        <label class="form-label">Valor (R$)</label>
+        <input class="form-input" id="f-valor" type="number" step="0.01" placeholder="0,00" value="${d.valor || ''}" />
+
+        <label class="form-label">Categoria</label>
+        <div class="cat-grid">
+          ${cats.map(c => `
+            <div class="cat-chip ${d.categoria === c.id ? 'selected' : ''}" onclick="setCat('${c.id}')">
+              <span class="emoji">${c.icon}</span>${c.label}
+            </div>
+          `).join('')}
+        </div>
+
+        <label class="form-label">Descrição (opcional)</label>
+        <input class="form-input" id="f-desc" type="text" placeholder="Ex: Almoço no centro" value="${d.descricao || ''}" />
+
+        <label class="form-label">Data</label>
+        <input class="form-input" id="f-data" type="date" value="${d.data || new Date().toISOString().split('T')[0]}" />
+
+        <div id="form-error" class="error-msg" style="display:none"></div>
+
+        <button class="btn-primary" onclick="submitLancamento()">Salvar lançamento</button>
+        <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderModalConta() {
+  const d = state.modalData;
+  return `
+    <div class="overlay" onclick="closeModalOutside(event)">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">${d.id ? 'Editar conta' : 'Nova conta recorrente'}</span>
+          <button class="btn-close" onclick="closeModal()">✕</button>
+        </div>
+
+        <label class="form-label">Nome da conta</label>
+        <input class="form-input" id="c-nome" type="text" placeholder="Ex: Aluguel, Energia, Cartão Nubank" value="${d.nome || ''}" />
+
+        <label class="form-label">Tipo</label>
+        <select class="form-input" id="c-tipo">
+          <option value="fixo" ${d.tipo === 'fixo' ? 'selected' : ''}>Fixo — mesmo valor todo mês</option>
+          <option value="variavel" ${d.tipo === 'variavel' ? 'selected' : ''}>Variável — valor muda todo mês</option>
+        </select>
+
+        <label class="form-label">Valor (R$) <span style="color:var(--text3)">${d.tipo === 'variavel' ? '— estimativa, pode alterar por mês' : ''}</span></label>
+        <input class="form-input" id="c-valor" type="number" step="0.01" placeholder="0,00" value="${d.valor || ''}" />
+
+        <label class="form-label">Dia do vencimento</label>
+        <input class="form-input" id="c-dia" type="number" min="1" max="31" placeholder="Ex: 10" value="${d.dia_vencimento || ''}" />
+
+        <label class="form-label">Categoria</label>
+        <div class="cat-grid">
+          ${CAT_CONTA.map(c => `
+            <div class="cat-chip ${d.categoria === c.id ? 'selected' : ''}" onclick="setCatConta('${c.id}')">
+              <span class="emoji">${c.icon}</span>${c.label}
+            </div>
+          `).join('')}
+        </div>
+
+        <div id="form-error" class="error-msg" style="display:none"></div>
+
+        <button class="btn-primary" onclick="submitConta()">Salvar conta</button>
+        ${d.id ? `<button class="btn-secondary" style="color:var(--red);border-color:var(--red)" onclick="confirmarDeleteConta(${d.id})">Remover conta</button>` : ''}
+        <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderModalConfirmarPagar() {
+  const d = state.modalData;
+  return `
+    <div class="overlay" onclick="closeModalOutside(event)">
+      <div class="modal" style="text-align:center">
+        <div style="font-size:40px;margin-bottom:12px">✅</div>
+        <h3 style="font-size:18px;font-weight:700;margin-bottom:6px">${d.nome}</h3>
+        <p style="font-size:28px;font-weight:700;font-family:'DM Mono',monospace;color:var(--green);margin-bottom:8px">${fmt(d.valor)}</p>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:24px">Marcar como paga?</p>
+        <button class="btn-primary" onclick="pagarConta(${d.id})">Confirmar pagamento</button>
+        <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderModalDeleteConfirm() {
+  const d = state.modalData;
+  return `
+    <div class="overlay" onclick="closeModalOutside(event)">
+      <div class="modal" style="text-align:center">
+        <div style="font-size:36px;margin-bottom:12px">🗑️</div>
+        <h3 style="font-size:17px;font-weight:700;margin-bottom:8px">Remover lançamento?</h3>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:24px">Esta ação não pode ser desfeita.</p>
+        <button class="btn-primary" style="background:var(--red)" onclick="${d.type === 'conta' ? `deletarConta(${d.id})` : `deletarLancamento(${d.id})`}">Remover</button>
+        <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  `;
+}
+
+// ─────────────────────────────────────────────────────────────
+// EVENT HANDLERS (global functions for onclick)
+// ─────────────────────────────────────────────────────────────
+window.selectUser = (u) => {
+  state.user = u;
+  localStorage.setItem(CONFIG.USER_KEY, u);
+  render();
+  loadCurrentTab();
+};
+
+window.changeUser = () => {
+  state.user = null;
+  localStorage.removeItem(CONFIG.USER_KEY);
+  render();
+};
+
+window.openTab = (tab) => {
+  state.tab = tab;
+  render();
+  loadCurrentTab();
+};
+
+window.changeMes = (mes) => {
+  state.mes = mes;
+  render();
+  loadCurrentTab();
+};
+
+window.openModal = (type, data = {}) => {
+  state.modal = type;
+  state.modalData = data;
+  render();
+};
+
+window.closeModal = () => {
+  state.modal = null;
+  state.modalData = {};
+  render();
+};
+
+window.closeModalOutside = (e) => {
+  if (e.target.classList.contains('overlay')) closeModal();
+};
+
+window.setTipo = (tipo) => {
+  state.modalData = { ...state.modalData, tipo, categoria: '' };
+  render();
+};
+
+window.setCat = (cat) => {
+  state.modalData = { ...state.modalData, categoria: cat };
+  render();
+};
+
+window.setCatConta = (cat) => {
+  state.modalData = { ...state.modalData, categoria: cat };
+  render();
+};
+
+window.submitLancamento = () => {
+  const valor = parseFloat(document.getElementById('f-valor')?.value);
+  const categoria = state.modalData.categoria;
+  const descricao = document.getElementById('f-desc')?.value || '';
+  const data = document.getElementById('f-data')?.value;
+  const tipo = state.modalData.tipo || 'saida';
+  const err = document.getElementById('form-error');
+
+  if (!valor || valor <= 0) { err.textContent = 'Informe um valor válido.'; err.style.display = 'block'; return; }
+  if (!categoria) { err.textContent = 'Selecione uma categoria.'; err.style.display = 'block'; return; }
+  if (!data) { err.textContent = 'Informe a data.'; err.style.display = 'block'; return; }
+
+  salvarLancamento({ tipo, valor, categoria, descricao, data });
+};
+
+window.submitConta = () => {
+  const nome = document.getElementById('c-nome')?.value?.trim();
+  const tipo = document.getElementById('c-tipo')?.value;
+  const valor = parseFloat(document.getElementById('c-valor')?.value) || 0;
+  const dia_vencimento = parseInt(document.getElementById('c-dia')?.value);
+  const categoria = state.modalData.categoria;
+  const err = document.getElementById('form-error');
+
+  if (!nome) { err.textContent = 'Informe o nome da conta.'; err.style.display = 'block'; return; }
+  if (!dia_vencimento || dia_vencimento < 1 || dia_vencimento > 31) { err.textContent = 'Informe o dia de vencimento (1-31).'; err.style.display = 'block'; return; }
+  if (!categoria) { err.textContent = 'Selecione uma categoria.'; err.style.display = 'block'; return; }
+
+  salvarConta({ id: state.modalData.id, nome, tipo, valor, dia_vencimento, categoria });
+};
+
+window.confirmarPagar = (id, nome, valor) => {
+  state.modal = 'confirmar-pagar';
+  state.modalData = { id, nome, valor };
+  render();
+};
+
+window.pagarConta = (id) => pagarConta(id);
+window.desmarcarConta = (id) => desmarcarConta(id);
+window.atualizarValorConta = (id, valor) => atualizarValorConta(id, parseFloat(valor));
+
+window.confirmDelete = (id) => {
+  state.modal = 'delete-confirm';
+  state.modalData = { id, type: 'lancamento' };
+  render();
+};
+
+window.confirmarDeleteConta = (id) => {
+  state.modal = 'delete-confirm';
+  state.modalData = { id, type: 'conta' };
+  render();
+};
+
+window.deletarLancamento = (id) => deletarLancamento(id);
+window.deletarConta = (id) => deletarConta(id);
+
+window.showApiEdit = () => {
+  state.apiConfigOpen = !state.apiConfigOpen;
+  render();
+};
+
+window.saveApiUrl = () => {
+  const input = document.getElementById('api-url-input');
+  if (!input) return;
+  const url = input.value.trim().replace(/\/$/, '');
+  CONFIG.API_URL = url;
+  localStorage.setItem('api_url', url);
+  state.apiConfigOpen = false;
+  render();
+  if (url) loadCurrentTab();
+};
+
+function attachEvents() {
+  // Nada por agora — usamos onclick inline para simplicidade
+}
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+window.addEventListener('online', () => { state.online = true; render(); loadCurrentTab(); });
+window.addEventListener('offline', () => { state.online = false; render(); });
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+// Boot
+render();
+if (state.user && CONFIG.API_URL) {
+  loadCurrentTab();
+}
+</script>
+</body>
+</html>
